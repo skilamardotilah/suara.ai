@@ -19,12 +19,14 @@ Suara.ai adalah aplikasi web modern yang dirancang untuk membantu Anda meningkat
 ## Instalasi Lokal
 
 1. Clone repository ini:
+
 ```bash
 git clone https://github.com/skilamardotilah/suara.ai.git
 cd suara.ai
 ```
 
 2. Buka file HTML di browser:
+
 ```bash
 # Windows
 start suara_ai.html
@@ -37,6 +39,7 @@ xdg-open suara_ai.html
 ```
 
 Atau gunakan live server:
+
 ```bash
 npx http-server
 ```
@@ -61,6 +64,7 @@ npx vercel
 ## Kontribusi
 
 Kami menerima kontribusi! Silakan:
+
 1. Fork repository
 2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
 3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
