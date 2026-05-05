@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suara.ai — Pelatih Public Speaking AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=Instrument+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --ink: #0D0D0D;
+  --paper: #F5F0E8;
+  --cream: #EDE8DC;
+  --gold: #B8860B;
+  --gold-light: #D4A017;
+  --rust: #8B3A2A;
+  --sage: #4A6741;
+  --blue: #2A5280;
+  --text: #1A1612;
+  --muted: #7A7268;
+  --border: rgba(13,13,13,0.12);
+  --red: #C0392B;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  min-height: 100vh;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23000000' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* NAV */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(245,240,232,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  max-width: 100%;
+}
+
+.nav-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.wm-text { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 900; color: var(--ink); }
+.wm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-bottom: 2px; }
+.wm-ai { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; color: var(--gold); }
+
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--cream);
+  border-radius: 100px;
+  padding: 3px;
+}
+
+.nav-tab {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Instrument Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.nav-tab.active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* PAGES */
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+/* LANDING */
+.landing {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 60px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(184,134,11,0.1);
+  border: 1px solid rgba(184,134,11,0.25);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(36px, 7vw, 60px);
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--rust);
+}
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.65;
+  max-width: 480px;
+  margin-bottom: 36px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.feat-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.22s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feat-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.feat-card.fc-improve::before { background: var(--gold); }
+.feat-card.fc-vokal::before { background: var(--blue); }
+.feat-card.fc-simulasi::before { background: var(--sage); }
+
+.feat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.08); }
+.feat-card:hover::before { opacity: 1; }
+
+.fc-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+.fc-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.fc-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+.fc-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tag-gold { background: rgba(184,134,11,0.1); color: var(--gold); }
+.tag-blue { background: rgba(42,82,128,0.1); color: var(--blue); }
+.tag-sage { background: rgba(74,103,65,0.1); color: var(--sage); }
+
+.divider-line { height: 1px; background: var(--border); margin: 40px 0; }
+
+.how-title {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+
+.steps-list { display: flex; flex-direction: column; gap: 16px; }
+
+.step-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.step-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-content-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.step-content-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* SHARED COMPONENTS */
+.page-wrap { max-width: 720px; margin: 0 auto; padding: 28px 24px 60px; }
+
+.page-header { margin-bottom: 28px; }
+
+.page-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.badge-gold { background: rgba(184,134,11,0.1); border: 1px solid rgba(184,134,11,0.2); color: var(--gold); }
+.badge-blue { background: rgba(42,82,128,0.08); border: 1px solid rgba(42,82,128,0.2); color: var(--blue); }
+.badge-sage { background: rgba(74,103,65,0.08); border: 1px solid rgba(74,103,65,0.2); color: var(--sage); }
+
+.page-title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.page-title span { font-weight: 900; font-style: normal; }
+.page-subtitle { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+/* STEP ROWS */
+.step-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.step-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* FORM ELEMENTS */
+.ctx-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+
+select, textarea, input[type=number] {
+  width: 100%;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A7268' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  background-color: white;
+}
+
+select:focus, textarea:focus { border-color: var(--gold); }
+
+textarea {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.8;
+  padding: 16px 18px;
+  resize: vertical;
+  min-height: 180px;
+  border-radius: 14px;
+}
+
+textarea::placeholder { color: #B0AB9E; }
+
+.textarea-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 20px; }
+.word-count { font-size: 11px; color: var(--muted); }
+.example-pill {
+  font-size: 11px; color: var(--gold);
+  border: 1px solid rgba(184,134,11,0.3);
+  border-radius: 100px;
+  padding: 3px 12px;
+  cursor: pointer;
+  background: rgba(184,134,11,0.05);
+  font-weight: 500;
+  transition: all 0.2s;
+  font-family: 'Instrument Sans', sans-serif;
+}
+.example-pill:hover { background: rgba(184,134,11,0.12); }
+
+/* OPTIONS GRID */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.opt-btn {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+.opt-btn:hover { border-color: var(--gold-light); }
+.opt-btn.active { border-color: var(--gold); background: rgba(184,134,11,0.06); }
+.opt-icon { font-size: 16px; margin-bottom: 4px; display: block; }
+.opt-name { font-size: 12px; font-weight: 600; color: var(--text); display: block; }
+.opt-desc { font-size: 10px; color: var(--muted); display: block; margin-top: 2px; line-height: 1.3; }
+
+/* MAIN BUTTONS */
+.main-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--ink);
+  border: none;
+  border-radius: 12px;
+  color: var(--paper);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.main-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+.main-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.back-btn {
+  font-size: 12px; color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 14px;
+  cursor: pointer;
+  background: white;
+  font-family: 'Instrument Sans', sans-serif;
+  transition: all 0.2s;
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* LOADING */
+.loading-wrap { padding: 60px 0; text-align: center; animation: fadeIn 0.4s ease; }
+.loading-wave { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 50px; margin-bottom: 20px; }
+.lw-bar { width: 5px; background: var(--gold); border-radius: 3px; animation: lwave 1s ease infinite; }
+@keyframes lwave { 0%,100%{height:10px;opacity:0.4} 50%{height:45px;opacity:1} }
+.loading-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 300; font-style: italic; color: var(--ink); margin-bottom: 6px; }
+.loading-sub { font-size: 13px; color: var(--muted); }
+
+/* RESULT SHARED */
+.result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.result-heading { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; color: var(--ink); }
+
+.sec-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* IMPROVE RESULTS */
+.version-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.vtab {
+  font-size: 12px; font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  background: white;
+  color: var(--muted);
+  font-family: 'Instrument Sans', sans-serif;
+  transition: all 0.2s;
+}
+.vtab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.result-card { background: white; border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+.rc-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--cream); }
+.rc-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+.rc-tag { font-size: 10px; font-weight: 600; padding: 2px 10px; border-radius: 100px; letter-spacing: 0.04em; }
+.tag-original { background: rgba(122,114,104,0.12); color: var(--muted); }
+.tag-enhanced { background: rgba(74,103,65,0.12); color: var(--sage); }
+.rc-body { padding: 18px; font-size: 14px; line-height: 1.85; color: var(--text); font-weight: 300; white-space: pre-wrap; word-break: break-word; }
+.copy-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+  cursor: pointer; background: white;
+  transition: all 0.2s;
+  font-family: 'Instrument Sans', sans-serif;
+  margin: 0 18px 18px;
+}
+.copy-btn:hover { border-color: var(--sage); color: var(--sage); }
+
+.insight-box {
+  background: rgba(184,134,11,0.06);
+  border: 1px solid rgba(184,134,11,0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.ib-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.ib-item { display: flex; gap: 8px; font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+.ib-icon { color: var(--gold); flex-shrink: 0; font-weight: 600; }
+
+/* VOCAL RESULTS */
+.score-banner {
+  background: var(--ink);
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.score-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 0% 0%, rgba(184,134,11,0.15), transparent 60%); }
+.score-item { text-align: center; position: relative; }
+.score-item + .score-item { border-left: 1px solid rgba(255,255,255,0.1); }
+.score-num { font-family: 'Fraunces', serif; font-size: 42px; font-weight: 900; line-height: 1; }
+.score-label { font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+.score-grade { font-size: 11px; font-weight: 600; margin-top: 6px; }
+
+.dim-card { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; }
+.dim-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.dim-left { display: flex; align-items: center; gap: 10px; }
+.dim-icon { font-size: 20px; }
+.dim-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.dim-score-num { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; }
+.bar-bg { height: 6px; background: var(--cream); border-radius: 3px; margin-bottom: 10px; }
+.bar-fill { height: 6px; border-radius: 3px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+.dim-finding { display: flex; gap: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 6px; align-items: flex-start; }
+.find-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; margin-top: 1px; }
+.fd-good { background: rgba(74,103,65,0.12); color: var(--sage); }
+.fd-warn { background: rgba(184,134,11,0.12); color: var(--gold); }
+.fd-bad { background: rgba(192,57,43,0.1); color: var(--red); }
+
+.filler-section { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; }
+.filler-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.filler-chip { background: rgba(192,57,43,0.08); border: 1px solid rgba(192,57,43,0.15); border-radius: 100px; padding: 4px 12px; font-size: 12px; color: var(--red); font-weight: 500; }
+.filler-chip span { opacity: 0.6; margin-left: 4px; font-weight: 400; }
+
+.transcript-box { background: var(--cream); border-radius: 14px; padding: 16px 18px; font-size: 13px; line-height: 1.8; color: var(--text); font-weight: 300; margin-bottom: 10px; border: 1px solid var(--border); }
+.highlight-filler { background: rgba(192,57,43,0.12); color: var(--red); border-radius: 3px; padding: 1px 3px; font-weight: 500; }
+
+.drill-box { background: rgba(184,134,11,0.06); border: 1px solid rgba(184,134,11,0.2); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+.drill-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.drill-title::after { content: ''; flex: 1; height: 1px; background: rgba(184,134,11,0.2); }
+.drill-item { background: rgba(255,255,255,0.7); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: var(--text); line-height: 1.6; border-left: 3px solid var(--gold); }
+.drill-item:last-child { margin-bottom: 0; }
+
+/* SIMULASI */
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.mode-btn { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: left; }
+.mode-btn:hover { border-color: var(--sage); }
+.mode-btn.active { border-color: var(--sage); background: rgba(74,103,65,0.05); }
+.mode-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+.mode-title { font-size: 14px; font-weight: 600; color: var(--text); display: block; margin-bottom: 3px; }
+.mode-desc { font-size: 11px; color: var(--muted); display: block; line-height: 1.4; }
+
+.qa-card { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 14px; text-align: center; }
+.qa-number { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+.qa-question { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 20px; }
+.qa-timer { font-family: 'Fraunces', serif; font-size: 48px; font-weight: 900; line-height: 1; margin-bottom: 6px; transition: color 0.3s; }
+.qa-timer-label { font-size: 11px; color: var(--muted); }
+
+.record-area { background: white; border: 1.5px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 14px; transition: border-color 0.3s; }
+.record-area.recording { border-color: var(--red); }
+.mic-btn { width: 72px; height: 72px; border-radius: 50%; border: none; background: var(--ink); color: white; font-size: 26px; cursor: pointer; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.mic-btn:hover { transform: scale(1.05); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.mic-btn.recording { background: var(--red); animation: pulse-ring 1.5s ease infinite; }
+@keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(192,57,43,0.4)} 70%{box-shadow:0 0 0 20px rgba(192,57,43,0)} 100%{box-shadow:0 0 0 0 rgba(192,57,43,0)} }
+.rec-status { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.rec-hint { font-size: 12px; color: var(--muted); }
+.rec-timer-display { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; color: var(--red); margin: 8px 0; display: none; }
+
+.waveform { display: none; align-items: center; justify-content: center; gap: 3px; height: 36px; margin: 10px 0; }
+.wave-bar { width: 4px; background: var(--blue); border-radius: 2px; animation: wv 0.8s ease infinite; opacity: 0.7; }
+@keyframes wv { 0%,100%{height:6px} 50%{height:30px} }
+
+.transcript-live { background: var(--cream); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text); line-height: 1.7; min-height: 50px; margin-top: 10px; font-style: italic; text-align: left; display: none; }
+
+.sim-feedback { background: white; border: 1.5px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 10px; }
+
+.progress-bar-wrap { background: var(--cream); height: 4px; border-radius: 2px; margin-bottom: 20px; }
+.progress-bar-fill { height: 4px; background: var(--sage); border-radius: 2px; transition: width 0.4s ease; }
+
+/* KARD STRENGTH/WEAKNESS */
+.sw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.sw-card { border-radius: 12px; padding: 14px; }
+.sw-strength { background: rgba(74,103,65,0.08); border: 1px solid rgba(74,103,65,0.15); }
+.sw-weakness { background: rgba(192,57,43,0.06); border: 1px solid rgba(192,57,43,0.12); }
+.sw-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.sw-strength .sw-label { color: var(--sage); }
+.sw-weakness .sw-label { color: var(--red); }
+.sw-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+
+/* ANIMATIONS */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.anim-up { animation: fadeUp 0.5s ease; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="wordmark" onclick="goHome()">
+      <span class="wm-text">Suara</span>
+      <div class="wm-dot"></div>
+      <span class="wm-ai">ai</span>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goTo('home')" id="tab-home">Beranda</button>
+      <button class="nav-tab" onclick="goTo('improve')" id="tab-improve">✨ Improve</button>
+      <button class="nav-tab" onclick="goTo('vokal')" id="tab-vokal">🎙 Vokal</button>
+      <button class="nav-tab" onclick="goTo('simulasi')" id="tab-simulasi">⚡ Simulasi</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HOME PAGE ═══════════════════ -->
+<div id="page-home" class="page active">
+  <div class="landing">
+    <div class="hero-badge">✦ AI Public Speaking Coach</div>
+    <h1 class="hero-title">Bicara dengan<br><em>percaya diri.</em></h1>
+    <p class="hero-sub">Platform pelatihan public speaking pertama di Indonesia yang diperkuat AI. Analisis vokal, perkuat script, dan latihan simulasi — semua dalam satu tempat.</p>
+
+    <div class="features-grid">
+      <div class="feat-card fc-improve" onclick="goTo('improve')">
+        <span class="fc-icon">✨</span>
+        <div class="fc-title">Improve Speech</div>
+        <p class="fc-desc">Tambahkan hook, analogi, data, quotes, dan penutup yang kuat ke script pidatomu secara otomatis.</p>
+        <span class="fc-tag tag-gold">Langsung Pakai</span>
+      </div>
+      <div class="feat-card fc-vokal" onclick="goTo('vokal')">
+        <span class="fc-icon">🎙</span>
+        <div class="fc-title">Analisis Vokal</div>
+        <p class="fc-desc">Deteksi filler words, analisis intonasi & artikulasi, dan dapatkan feedback yang actionable dari AI.</p>
+        <span class="fc-tag tag-blue">Rekam atau Teks</span>
+      </div>
+      <div class="feat-card fc-simulasi" onclick="goTo('simulasi')">
+        <span class="fc-icon">⚡</span>
+        <div class="fc-title">Simulasi Q&A</div>
+        <p class="fc-desc">Latih kemampuan impromptu speaking dengan pertanyaan mendadak dari AI dan dapatkan feedback instan.</p>
+        <span class="fc-tag tag-sage">Coming Strong</span>
+      </div>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <h2 class="how-title">Cara kerja Suara.ai</h2>
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-circle">1</div>
+        <div>
+          <div class="step-content-title">Pilih fitur yang kamu butuhkan</div>
+          <div class="step-content-desc">Mau perkuat script? Analisis cara bicaramu? Atau latihan menjawab pertanyaan mendadak?</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">2</div>
+        <div>
+          <div class="step-content-title">Input script atau rekam suaramu</div>
+          <div class="step-content-desc">Paste teks pidato atau langsung bicara di browser. AI akan memproses keduanya.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <div>
+          <div class="step-content-title">Dapat feedback mendalam dari AI</div>
+          <div class="step-content-desc">Bukan sekedar "bagus" atau "kurang" — tapi feedback spesifik yang bisa langsung dipraktikkan.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <div>
+          <div class="step-content-title">Latihan, ulangi, dan berkembang</div>
+          <div class="step-content-desc">Setiap sesi membangun kemampuan. Konsistensi adalah kunci menjadi speaker yang luar biasa.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ IMPROVE PAGE ═══════════════════ -->
+<div id="page-improve" class="page">
+  <div class="page-wrap">
+    <div class="page-header">
+      <div class="page-badge badge-gold">✨ Improve Speech</div>
+      <div class="page-title">Jadikan pidatomu<br><span>tak terlupakan.</span></div>
+      <p class="page-subtitle">Paste script kamu, pilih elemen yang ingin ditambahkan, dan AI akan memperkuatnya dalam hitungan detik.</p>
+    </div>
+
+    <div id="imp-input">
+      <div class="step-row"><div class="step-num">1</div><span class="step-label">Konteks Pidato</span></div>
+      <div class="ctx-row">
+        <div class="field">
+          <label>Jenis Penampilan</label>
+          <select id="imp-type">
+            <option value="presentasi bisnis">Presentasi Bisnis</option>
+            <option value="pidato motivasi">Pidato Motivasi</option>
+            <option value="webinar / seminar">Webinar / Seminar</option>
+            <option value="pitch ke investor">Pitch Investor</option>
+            <option value="sambutan acara">Sambutan Acara</option>
+            <option value="TED Talk style">TED Talk Style</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Target Audiens</label>
+          <select id="imp-audience">
+            <option value="profesional dan eksekutif">Profesional / Eksekutif</option>
+            <option value="mahasiswa dan pemuda">Mahasiswa / Pemuda</option>
+            <option value="umum / mixed audience">Umum / Mixed</option>
+            <option value="klien dan calon pembeli">Klien / Customer</option>
+            <option value="komunitas entrepreneur">Komunitas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="step-row"><div class="step-num">2</div><span class="step-label">Script Pidato</span></div>
+      <textarea id="imp-script" placeholder="Tulis atau paste script pidato kamu di sini...&#10;&#10;Bisa draft kasar, poin-poin, atau script lengkap."></textarea>
+      <div class="textarea-meta">
+        <span class="word-count" id="imp-wc">0 kata</span>
+        <button class="example-pill" onclick="impLoadExample()">✦ Pakai contoh pidato</button>
+      </div>
+
+      <div class="step-row"><div class="step-num">3</div><span class="step-label">Pilih Elemen yang Ditambahkan</span></div>
+      <div class="options-grid">
+        <button class="opt-btn active" data-key="hook" onclick="toggleOpt(this)"><span class="opt-icon">🎣</span><span class="opt-name">Hook Pembuka</span><span class="opt-desc">Buka dengan kalimat yang menarik perhatian langsung</span></button>
+        <button class="opt-btn active" data-key="retoris" onclick="toggleOpt(this)"><span class="opt-icon">❓</span><span class="opt-name">Pertanyaan Retoris</span><span class="opt-desc">Buat audiens berpikir dan terlibat</span></button>
+        <button class="opt-btn active" data-key="analogi" onclick="toggleOpt(this)"><span class="opt-icon">🔗</span><span class="opt-name">Analogi Kuat</span><span class="opt-desc">Jelaskan konsep sulit dengan perbandingan mudah</span></button>
+        <button class="opt-btn" data-key="data" onclick="toggleOpt(this)"><span class="opt-icon">📊</span><span class="opt-name">Data & Fakta</span><span class="opt-desc">Perkuat argumen dengan statistik relevan</span></button>
+        <button class="opt-btn" data-key="quote" onclick="toggleOpt(this)"><span class="opt-icon">💬</span><span class="opt-name">Quote Tokoh</span><span class="opt-desc">Kutipan dari figur yang dikenal</span></button>
+        <button class="opt-btn" data-key="story" onclick="toggleOpt(this)"><span class="opt-icon">📖</span><span class="opt-name">Mini Story</span><span class="opt-desc">Cerita singkat yang menghidupkan pesan</span></button>
+        <button class="opt-btn" data-key="icebreak" onclick="toggleOpt(this)"><span class="opt-icon">❄️</span><span class="opt-name">Ice Breaking</span><span class="opt-desc">Cairkan suasana audiens</span></button>
+        <button class="opt-btn active" data-key="closing" onclick="toggleOpt(this)"><span class="opt-icon">🎯</span><span class="opt-name">Penutup Kuat</span><span class="opt-desc">CTA atau kalimat yang membekas</span></button>
+      </div>
+
+      <button class="main-btn" id="imp-btn" onclick="runImprove()">Perkuat Pidato Saya →</button>
+    </div>
+
+    <div id="imp-loading" class="hidden loading-wrap">
+      <div class="loading-wave">
+        <div class="lw-bar" style="animation-delay:0s;background:var(--gold)"></div>
+        <div class="lw-bar" style="animation-delay:0.1s;background:var(--gold)"></div>
+        <div class="lw-bar" style="animation-delay:0.2s;background:var(--gold)"></div>
+        <div class="lw-bar" style="animation-delay:0.3s;background:var(--gold)"></div>
+        <div class="lw-bar" style="animation-delay:0.4s;background:var(--gold)"></div>
+      </div>
+      <div class="loading-title">Memperkuat pidatomu...</div>
+      <div class="loading-sub">AI sedang menambahkan elemen terpilih</div>
+    </div>
+
+    <div id="imp-result" class="hidden anim-up">
+      <div class="result-top">
+        <div class="result-heading">Hasil Enhancement</div>
+        <button class="back-btn" onclick="impReset()">← Ulangi</button>
+      </div>
+      <div id="imp-insights" class="insight-box hidden">
+        <div class="ib-title">✦ Yang ditambahkan AI</div>
+        <div id="imp-insights-list"></div>
+      </div>
+      <div class="version-tabs" id="imp-tabs"></div>
+      <div id="imp-cards"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ VOKAL PAGE ═══════════════════ -->
+<div id="page-vokal" class="page">
+  <div class="page-wrap">
+    <div class="page-header">
+      <div class="page-badge badge-blue">🎙 Analisis Vokal</div>
+      <div class="page-title" style="color:var(--ink)">Dengar dirimu<br><span style="color:var(--blue)">dengan jelas.</span></div>
+      <p class="page-subtitle">Rekam langsung atau ketik transkripmu. AI analisis intonasi, filler words, artikulasi, dan koherensi pidatomu.</p>
+    </div>
+
+    <div id="vok-input">
+      <div class="step-row"><div class="step-num">1</div><span class="step-label">Mode Input</span></div>
+      <div class="mode-grid" style="margin-bottom:20px">
+        <button class="mode-btn" id="vm-record" style="border-color:var(--blue);background:rgba(42,82,128,0.05)" onclick="setVokMode('record')">
+          <span class="mode-icon">🎙</span>
+          <span class="mode-title">Rekam Langsung</span>
+          <span class="mode-desc">Bicara di browser, AI transkrip dan analisis otomatis</span>
+        </button>
+        <button class="mode-btn" id="vm-text" onclick="setVokMode('text')">
+          <span class="mode-icon">📝</span>
+          <span class="mode-title">Input Teks</span>
+          <span class="mode-desc">Paste transkrip untuk analisis mendalam</span>
+        </button>
+      </div>
+
+      <div class="step-row"><div class="step-num">2</div><span class="step-label">Konteks</span></div>
+      <div class="ctx-row">
+        <div class="field">
+          <label>Jenis Penampilan</label>
+          <select id="vok-type">
+            <option value="presentasi bisnis">Presentasi Bisnis</option>
+            <option value="pidato motivasi">Pidato Motivasi</option>
+            <option value="webinar / seminar">Webinar / Seminar</option>
+            <option value="pitch investor">Pitch Investor</option>
+            <option value="sambutan acara">Sambutan Acara</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Target Audiens</label>
+          <select id="vok-audience">
+            <option value="profesional">Profesional / Eksekutif</option>
+            <option value="mahasiswa">Mahasiswa / Pemuda</option>
+            <option value="umum">Umum / Mixed</option>
+            <option value="komunitas">Komunitas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="step-row"><div class="step-num">3</div><span class="step-label" id="vok-step3">Rekam Pidato</span></div>
+
+      <div id="vok-record-section">
+        <div class="record-area" id="vok-record-area">
+          <button class="mic-btn" id="vok-mic-btn" onclick="toggleVokRecord()" style="margin:0 auto 14px">🎙</button>
+          <div class="rec-timer-display" id="vok-timer">0:00</div>
+          <div class="waveform" id="vok-wave">
+            <div class="wave-bar" style="animation-delay:0s"></div>
+            <div class="wave-bar" style="animation-delay:0.1s"></div>
+            <div class="wave-bar" style="animation-delay:0.2s"></div>
+            <div class="wave-bar" style="animation-delay:0.3s"></div>
+            <div class="wave-bar" style="animation-delay:0.4s"></div>
+            <div class="wave-bar" style="animation-delay:0.5s"></div>
+            <div class="wave-bar" style="animation-delay:0.6s"></div>
+          </div>
+          <div class="rec-status" id="vok-rec-status">Klik untuk mulai merekam</div>
+          <div class="rec-hint">Bicara seperti saat presentasi nyata</div>
+          <div class="transcript-live" id="vok-live-transcript"></div>
+        </div>
+      </div>
+
+      <div id="vok-text-section" class="hidden">
+        <textarea id="vok-text" placeholder="Paste atau ketik transkrip pidato di sini...&#10;&#10;Semakin lengkap, semakin detail analisisnya."></textarea>
+        <div class="textarea-meta">
+          <span class="word-count" id="vok-wc">0 kata</span>
+          <button class="example-pill" onclick="vokLoadExample()">✦ Pakai contoh</button>
+        </div>
+      </div>
+
+      <button class="main-btn" id="vok-btn" onclick="runVokal()" style="margin-top:16px;background:var(--blue)">Analisis Vokal Saya →</button>
+    </div>
+
+    <div id="vok-loading" class="hidden loading-wrap">
+      <div class="loading-wave">
+        <div class="lw-bar" style="animation-delay:0s;background:var(--blue)"></div>
+        <div class="lw-bar" style="animation-delay:0.1s;background:var(--blue)"></div>
+        <div class="lw-bar" style="animation-delay:0.2s;background:var(--blue)"></div>
+        <div class="lw-bar" style="animation-delay:0.3s;background:var(--blue)"></div>
+        <div class="lw-bar" style="animation-delay:0.4s;background:var(--blue)"></div>
+      </div>
+      <div class="loading-title">Menganalisis vokal pidatomu...</div>
+      <div class="loading-sub">AI sedang memproses pola bicara dan filler words</div>
+    </div>
+
+    <div id="vok-result" class="hidden anim-up">
+      <div class="result-top">
+        <div class="result-heading">Hasil Analisis Vokal</div>
+        <button class="back-btn" onclick="vokReset()">← Ulangi</button>
+      </div>
+      <div id="vok-result-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SIMULASI PAGE ═══════════════════ -->
+<div id="page-simulasi" class="page">
+  <div class="page-wrap">
+    <div class="page-header">
+      <div class="page-badge badge-sage">⚡ Simulasi Q&A</div>
+      <div class="page-title" style="color:var(--ink)">Latih<br><span style="color:var(--sage)">impromptu speaking.</span></div>
+      <p class="page-subtitle">AI akan melempar pertanyaan mendadak. Jawab dalam waktu yang ditentukan, lalu dapat feedback instan dari AI coach.</p>
+    </div>
+
+    <div id="sim-setup">
+      <div class="step-row"><div class="step-num">1</div><span class="step-label">Pengaturan Sesi</span></div>
+      <div class="ctx-row">
+        <div class="field">
+          <label>Topik / Konteks</label>
+          <select id="sim-topic">
+            <option value="bisnis dan entrepreneurship">Bisnis & Entrepreneurship</option>
+            <option value="kepemimpinan dan manajemen">Kepemimpinan & Manajemen</option>
+            <option value="teknologi dan inovasi">Teknologi & Inovasi</option>
+            <option value="pengembangan diri">Pengembangan Diri</option>
+            <option value="public speaking dan komunikasi">Public Speaking</option>
+            <option value="umum / bebas">Umum / Bebas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Waktu Jawab</label>
+          <select id="sim-time">
+            <option value="60">60 detik</option>
+            <option value="90">90 detik</option>
+            <option value="120">2 menit</option>
+            <option value="180">3 menit</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="step-row"><div class="step-num">2</div><span class="step-label">Mode Jawab</span></div>
+      <div class="mode-grid">
+        <button class="mode-btn active" id="sm-record" onclick="setSimMode('record')" style="border-color:var(--sage);background:rgba(74,103,65,0.05)">
+          <span class="mode-icon">🎙</span>
+          <span class="mode-title">Rekam Jawaban</span>
+          <span class="mode-desc">Jawab dengan bicara langsung di browser</span>
+        </button>
+        <button class="mode-btn" id="sm-text" onclick="setSimMode('text')">
+          <span class="mode-icon">⌨️</span>
+          <span class="mode-title">Ketik Jawaban</span>
+          <span class="mode-desc">Ketik jawabanmu untuk dianalisis AI</span>
+        </button>
+      </div>
+
+      <button class="main-btn" id="sim-start-btn" onclick="startSim()" style="background:var(--sage)">Mulai Sesi Simulasi →</button>
+    </div>
+
+    <div id="sim-loading" class="hidden loading-wrap">
+      <div class="loading-wave">
+        <div class="lw-bar" style="animation-delay:0s;background:var(--sage)"></div>
+        <div class="lw-bar" style="animation-delay:0.1s;background:var(--sage)"></div>
+        <div class="lw-bar" style="animation-delay:0.2s;background:var(--sage)"></div>
+        <div class="lw-bar" style="animation-delay:0.3s;background:var(--sage)"></div>
+        <div class="lw-bar" style="animation-delay:0.4s;background:var(--sage)"></div>
+      </div>
+      <div class="loading-title" id="sim-loading-title">Menyiapkan pertanyaan...</div>
+      <div class="loading-sub">AI sedang merancang sesi simulasimu</div>
+    </div>
+
+    <div id="sim-session" class="hidden">
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="sim-progress" style="width:0%"></div></div>
+
+      <div class="qa-card">
+        <div class="qa-number" id="sim-qnum">Pertanyaan 1 dari 3</div>
+        <div class="qa-question" id="sim-question">...</div>
+        <div class="qa-timer" id="sim-countdown">60</div>
+        <div class="qa-timer-label">detik tersisa</div>
+      </div>
+
+      <div id="sim-record-area">
+        <div class="record-area" id="sim-rec-area">
+          <button class="mic-btn" id="sim-mic-btn" onclick="toggleSimRecord()" style="margin:0 auto 14px">🎙</button>
+          <div class="rec-timer-display" id="sim-rec-timer">0:00</div>
+          <div class="waveform" id="sim-wave">
+            <div class="wave-bar" style="animation-delay:0s"></div>
+            <div class="wave-bar" style="animation-delay:0.15s"></div>
+            <div class="wave-bar" style="animation-delay:0.3s"></div>
+            <div class="wave-bar" style="animation-delay:0.45s"></div>
+            <div class="wave-bar" style="animation-delay:0.6s"></div>
+          </div>
+          <div class="rec-status" id="sim-rec-status">Klik untuk rekam jawaban</div>
+          <div class="rec-hint">Jawab dengan percaya diri dan terstruktur</div>
+          <div class="transcript-live" id="sim-live"></div>
+        </div>
+      </div>
+
+      <div id="sim-text-area" class="hidden">
+        <textarea id="sim-text-input" placeholder="Ketik jawabanmu di sini..." style="min-height:140px"></textarea>
+      </div>
+
+      <button class="main-btn" id="sim-next-btn" onclick="simNextQ()" style="margin-top:12px;background:var(--sage)">Kirim Jawaban →</button>
+    </div>
+
+    <div id="sim-result" class="hidden anim-up">
+      <div class="result-top">
+        <div class="result-heading">Hasil Sesi Simulasi</div>
+        <button class="back-btn" onclick="simReset()">← Sesi Baru</button>
+      </div>
+      <div id="sim-result-content"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════ NAVIGATION ═══════════
+const pages = ['home','improve','vokal','simulasi'];
+
+function goTo(page) {
+  pages.forEach(p => {
+    document.getElementById('page-' + p).classList.toggle('active', p === page);
+    document.getElementById('tab-' + p).classList.toggle('active', p === page);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goHome() { goTo('home'); }
+
+// ═══════════ SHARED UTILS ═══════════
+function toggleOpt(btn) { btn.classList.toggle('active'); }
+
+function getScoreColor(s) {
+  if (s >= 80) return '#4A6741';
+  if (s >= 60) return '#B8860B';
+  return '#C0392B';
+}
+
+function getGrade(s) {
+  if (s >= 85) return 'Sangat Baik';
+  if (s >= 70) return 'Baik';
+  if (s >= 55) return 'Cukup';
+  return 'Perlu Latihan';
+}
+
+async function callClaude(prompt, system = 'Jawab HANYA dengan JSON valid tanpa markdown.', maxTokens = 1200) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  const data = await response.json();
+  const raw = data.content[0].text.replace(/```json|```/g, '').trim();
+  return JSON.parse(raw);
+}
+
+function showSection(prefix, section) {
+  ['input','loading','result','session','setup'].forEach(s => {
+    const el = document.getElementById(prefix + '-' + s);
+    if (el) el.classList.toggle('hidden', s !== section);
+  });
+}
+
+// ═══════════ IMPROVE SPEECH ═══════════
+const IMP_EXAMPLE = `Selamat pagi. Hari ini saya ingin membahas tentang pentingnya komunikasi yang efektif dalam dunia bisnis.
+
+Komunikasi yang baik adalah kunci keberhasilan sebuah tim. Tanpa komunikasi yang jelas, banyak proyek yang gagal meskipun idenya bagus. Saya pernah mengalami hal ini ketika tim saya salah paham tentang deadline sebuah proyek.
+
+Oleh karena itu, saya ingin mengajak kita semua untuk lebih memperhatikan cara kita berkomunikasi. Mulai dari hal sederhana seperti menulis email yang jelas, sampai presentasi di depan banyak orang.
+
+Semoga hari ini kita bisa belajar sesuatu yang bermanfaat. Terima kasih.`;
+
+const OPT_INFO = {
+  hook:'Hook Pembuka', retoris:'Pertanyaan Retoris', analogi:'Analogi Kuat',
+  data:'Data & Fakta', quote:'Quote Tokoh', story:'Mini Story',
+  icebreak:'Ice Breaking', closing:'Penutup Kuat'
+};
+
+let impVersions = [];
+
+document.getElementById('imp-script').addEventListener('input', () => {
+  const w = document.getElementById('imp-script').value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('imp-wc').textContent = w + ' kata';
+});
+
+function impLoadExample() {
+  document.getElementById('imp-script').value = IMP_EXAMPLE;
+  document.getElementById('imp-wc').textContent = IMP_EXAMPLE.trim().split(/\s+/).length + ' kata';
+}
+
+async function runImprove() {
+  const script = document.getElementById('imp-script').value.trim();
+  if (script.length < 30) { alert('Masukkan script yang lebih lengkap ya.'); return; }
+
+  const activeOpts = [...document.querySelectorAll('#page-improve .opt-btn.active')].map(b => b.dataset.key);
+  if (!activeOpts.length) { alert('Pilih minimal satu elemen.'); return; }
+
+  document.getElementById('imp-btn').disabled = true;
+  showSection('imp', 'loading');
+
+  const optLabels = activeOpts.map(k => OPT_INFO[k]).join(', ');
+  const type = document.getElementById('imp-type').value;
+  const audience = document.getElementById('imp-audience').value;
+
+  const prompt = `Kamu pelatih public speaking profesional Indonesia. Perkuat script berikut.
+Jenis: ${type} | Audiens: ${audience}
+Elemen yang ditambahkan: ${optLabels}
+
+Script:
+"""${script}"""
+
+Balas HANYA JSON:
+{
+  "versions": [
+    {"style":"Profesional & Berbobot","script":"[script lengkap diperkuat, gaya formal]"},
+    {"style":"Hangat & Personal","script":"[script lengkap diperkuat, gaya personal]"}
+  ],
+  "insights": ["[penjelasan elemen 1 yang ditambahkan]","[elemen 2]","[elemen 3 jika ada]"]
+}`;
+
+  try {
+    const result = await callClaude(prompt, 'Kamu pelatih public speaking Indonesia. Balas HANYA JSON valid.', 2000);
+
+    impVersions = [
+      { style: '📄 Original', script, isOriginal: true },
+      ...result.versions.map(v => ({ style: '✨ ' + v.style, script: v.script, isOriginal: false }))
+    ];
+
+    // insights
+    if (result.insights?.length) {
+      document.getElementById('imp-insights').classList.remove('hidden');
+      document.getElementById('imp-insights-list').innerHTML = result.insights.map(i =>
+        `<div class="ib-item"><span class="ib-icon">✦</span><span>${i}</span></div>`
+      ).join('');
+    }
+
+    // tabs
+    document.getElementById('imp-tabs').innerHTML = impVersions.map((v, i) =>
+      `<button class="vtab ${i===0?'active':''}" onclick="impSwitchTab(${i})">${v.style}</button>`
+    ).join('');
+
+    impRenderCard(0);
+    showSection('imp', 'result');
+
+  } catch(e) {
+    showSection('imp', 'input');
+    alert('Gagal: ' + e.message + '\n\nJalankan via localhost, bukan file://');
+  }
+  document.getElementById('imp-btn').disabled = false;
+}
+
+function impSwitchTab(idx) {
+  document.querySelectorAll('#imp-tabs .vtab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  impRenderCard(idx);
+}
+
+function impRenderCard(idx) {
+  const v = impVersions[idx];
+  document.getElementById('imp-cards').innerHTML = `
+    <div class="result-card">
+      <div class="rc-header">
+        <span class="rc-label">${v.isOriginal ? 'Script Asli' : 'Script Diperkuat'}</span>
+        <span class="rc-tag ${v.isOriginal ? 'tag-original' : 'tag-enhanced'}">${v.isOriginal ? 'ORIGINAL' : 'ENHANCED'}</span>
+      </div>
+      <div class="rc-body">${v.script}</div>
+      <button class="copy-btn" onclick="copyText(${idx})">⎘ Salin Script</button>
+    </div>`;
+}
+
+function copyText(idx) {
+  navigator.clipboard.writeText(impVersions[idx].script).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const o = btn.innerHTML;
+    btn.innerHTML = '✓ Tersalin!';
+    btn.style.color = 'var(--sage)';
+    setTimeout(() => { btn.innerHTML = o; btn.style.color = ''; }, 1800);
+  });
+}
+
+function impReset() {
+  showSection('imp', 'input');
+  document.getElementById('imp-insights').classList.add('hidden');
+  document.getElementById('imp-btn').disabled = false;
+}
+
+// ═══════════ VOKAL ANALYSIS ═══════════
+const VOK_EXAMPLE = `Selamat pagi teman-teman semua. Hari ini, em, saya ingin berbicara tentang, eh, pentingnya komunikasi dalam dunia kerja. Jadi, komunikasi itu adalah, ya, kunci dari segalanya.
+
+Em, pertama-tama, kita harus memahami bahwa, eh, setiap orang memiliki cara berkomunikasi yang berbeda-beda. Jadi ya, kita tidak bisa, eh, memaksakan gaya komunikasi kita kepada orang lain.
+
+Intinya adalah, eh, kita harus, ya, belajar mendengarkan. Karena dengan mendengarkan, em, kita bisa, ya, memahami perspektif orang lain. Dan itu, eh, sangat penting untuk, ya, membangun hubungan yang baik.
+
+Jadi, kesimpulannya adalah, eh, komunikasi yang baik itu dimulai dari diri kita sendiri. Mari kita, ya, berkomitmen untuk menjadi komunikator yang lebih baik. Terima kasih.`;
+
+const FILLERS = ['em','eh','ah','um','uh','ya','jadi','gitu','kan','tuh','nih','yah','oh','hmm','intinya','sebenarnya'];
+
+let vokMode = 'record';
+let vokRecognition = null;
+let vokIsRecording = false;
+let vokTranscript = '';
+let vokTimer = null;
+let vokSeconds = 0;
+
+function setVokMode(m) {
+  vokMode = m;
+  const isRec = m === 'record';
+  document.getElementById('vm-record').style.borderColor = isRec ? 'var(--blue)' : 'rgba(13,13,13,0.12)';
+  document.getElementById('vm-record').style.background = isRec ? 'rgba(42,82,128,0.05)' : 'white';
+  document.getElementById('vm-text').style.borderColor = !isRec ? 'var(--blue)' : 'rgba(13,13,13,0.12)';
+  document.getElementById('vm-text').style.background = !isRec ? 'rgba(42,82,128,0.05)' : 'white';
+  document.getElementById('vok-record-section').classList.toggle('hidden', !isRec);
+  document.getElementById('vok-text-section').classList.toggle('hidden', isRec);
+  document.getElementById('vok-step3').textContent = isRec ? 'Rekam Pidato' : 'Input Transkrip';
+}
+
+document.getElementById('vok-text').addEventListener('input', () => {
+  const w = document.getElementById('vok-text').value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('vok-wc').textContent = w + ' kata';
+});
+
+function vokLoadExample() {
+  document.getElementById('vok-text').value = VOK_EXAMPLE;
+  document.getElementById('vok-wc').textContent = VOK_EXAMPLE.trim().split(/\s+/).length + ' kata';
+}
+
+function toggleVokRecord() {
+  if (!vokIsRecording) startVokRecord();
+  else stopVokRecord();
+}
+
+function startVokRecord() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Gunakan Google Chrome untuk fitur rekam.\n\nAtau gunakan mode "Input Teks".');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  vokRecognition = new SR();
+  vokRecognition.continuous = true;
+  vokRecognition.interimResults = true;
+  vokRecognition.lang = 'id-ID';
+
+  let finalT = '';
+  vokRecognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalT += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    vokTranscript = finalT + interim;
+    const el = document.getElementById('vok-live-transcript');
+    el.style.display = 'block';
+    el.textContent = vokTranscript || '...';
+  };
+  vokRecognition.onerror = () => {};
+  vokRecognition.onend = () => { if (vokIsRecording) vokRecognition.start(); };
+  vokRecognition.start();
+  vokIsRecording = true;
+  vokSeconds = 0;
+
+  document.getElementById('vok-mic-btn').classList.add('recording');
+  document.getElementById('vok-mic-btn').textContent = '⏹';
+  document.getElementById('vok-rec-status').textContent = 'Merekam... Bicara sekarang!';
+  document.getElementById('vok-record-area').classList.add('recording');
+  document.getElementById('vok-timer').style.display = 'block';
+  document.getElementById('vok-wave').style.display = 'flex';
+
+  vokTimer = setInterval(() => {
+    vokSeconds++;
+    const m = Math.floor(vokSeconds/60), s = vokSeconds%60;
+    document.getElementById('vok-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopVokRecord() {
+  if (vokRecognition) { vokRecognition.onend = null; vokRecognition.stop(); }
+  vokIsRecording = false;
+  clearInterval(vokTimer);
+  document.getElementById('vok-mic-btn').classList.remove('recording');
+  document.getElementById('vok-mic-btn').textContent = '🎙';
+  document.getElementById('vok-rec-status').textContent = vokTranscript ? '✓ Selesai! Siap dianalisis.' : 'Selesai merekam';
+  document.getElementById('vok-record-area').classList.remove('recording');
+  document.getElementById('vok-wave').style.display = 'none';
+}
+
+function countFillers(text) {
+  const lower = text.toLowerCase();
+  const result = {};
+  FILLERS.forEach(f => {
+    const m = lower.match(new RegExp(`\\b${f}\\b`, 'gi'));
+    if (m?.length) result[f] = m.length;
+  });
+  return result;
+}
+
+function highlightFillers(text) {
+  let h = text;
+  FILLERS.forEach(f => {
+    h = h.replace(new RegExp(`\\b(${f})\\b`, 'gi'), '<span class="highlight-filler">$1</span>');
+  });
+  return h;
+}
+
+async function runVokal() {
+  const text = vokMode === 'record' ? vokTranscript.trim() : document.getElementById('vok-text').value.trim();
+  if (text.length < 20) {
+    alert(vokMode === 'record' ? 'Rekam pidato dulu ya!' : 'Masukkan teks yang lebih lengkap.');
+    return;
+  }
+
+  document.getElementById('vok-btn').disabled = true;
+  showSection('vok', 'loading');
+
+  const fillers = countFillers(text);
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 3).length;
+  const totalFillers = Object.values(fillers).reduce((a,b)=>a+b,0);
+  const fillerRate = words > 0 ? ((totalFillers/words)*100).toFixed(1) : 0;
+  const fillerSummary = Object.entries(fillers).map(([k,v])=>`"${k}" (${v}x)`).join(', ') || 'tidak ada';
+
+  const prompt = `Kamu pelatih public speaking profesional Indonesia. Analisis transkrip ini.
+Jenis: ${document.getElementById('vok-type').value} | Audiens: ${document.getElementById('vok-audience').value}
+Statistik: ${words} kata, ${sentences} kalimat, filler words: ${fillerSummary}, tingkat filler: ${fillerRate}%
+
+Transkrip:
+"""${text}"""
+
+Balas HANYA JSON:
+{
+  "scores":{"intonasi":[0-100],"artikulasi":[0-100],"koherensi":[0-100]},
+  "intonasi_findings":["finding 1","finding 2","finding 3"],
+  "artikulasi_findings":["finding 1","finding 2","finding 3"],
+  "koherensi_findings":["finding 1","finding 2","finding 3"],
+  "filler_verdict":"[komentar singkat soal filler words]",
+  "kecepatan_verdict":"[komentar soal kecepatan dan ritme]",
+  "top_strength":"[1 kekuatan utama]",
+  "top_weakness":"[1 kelemahan utama]",
+  "drills":["[drill latihan 1]","[drill 2]","[drill 3]"]
+}`;
+
+  try {
+    const result = await callClaude(prompt);
+    renderVokalResult(result, text, fillers, words, totalFillers, fillerRate);
+    showSection('vok', 'result');
+  } catch(e) {
+    showSection('vok', 'input');
+    alert('Gagal: ' + e.message + '\n\nJalankan via localhost.');
+  }
+  document.getElementById('vok-btn').disabled = false;
+}
+
+function renderVokalResult(r, text, fillers, words, totalFillers, fillerRate) {
+  const overall = Math.round((r.scores.intonasi + r.scores.artikulasi + r.scores.koherensi) / 3);
+
+  const fillerChips = Object.entries(fillers).length > 0
+    ? Object.entries(fillers).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="filler-chip">${k}<span>${v}x</span></div>`).join('')
+    : '<span style="font-size:13px;color:var(--sage)">✓ Tidak ada filler words signifikan</span>';
+
+  const dims = [
+    {key:'intonasi',icon:'🎵',label:'Intonasi',findings:r.intonasi_findings},
+    {key:'artikulasi',icon:'🗣',label:'Artikulasi',findings:r.artikulasi_findings},
+    {key:'koherensi',icon:'🧠',label:'Koherensi',findings:r.koherensi_findings},
+  ];
+
+  const dimsHTML = dims.map(d => {
+    const score = r.scores[d.key];
+    const color = getScoreColor(score);
+    const findHTML = d.findings.map(f => {
+      const good = f.toLowerCase().includes('baik')||f.toLowerCase().includes('bagus')||f.toLowerCase().includes('jelas')||f.toLowerCase().includes('kuat');
+      const warn = f.toLowerCase().includes('perlu')||f.toLowerCase().includes('cukup')||f.toLowerCase().includes('agak');
+      const cls = good?'fd-good':warn?'fd-warn':'fd-bad';
+      const icon = good?'✓':warn?'!':'✗';
+      return `<div class="dim-finding"><div class="find-dot ${cls}">${icon}</div><span>${f}</span></div>`;
+    }).join('');
+    return `<div class="dim-card">
+      <div class="dim-header">
+        <div class="dim-left"><span class="dim-icon">${d.icon}</span><span class="dim-name">${d.label}</span></div>
+        <span class="dim-score-num" style="color:${color}">${score}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${score}%;background:${color}"></div></div>
+      ${findHTML}
+    </div>`;
+  }).join('');
+
+  document.getElementById('vok-result-content').innerHTML = `
+    <div class="score-banner">
+      <div class="score-item"><div class="score-num" style="color:${getScoreColor(r.scores.intonasi)}">${r.scores.intonasi}</div><div class="score-label">Intonasi</div><div class="score-grade" style="color:${getScoreColor(r.scores.intonasi)}">${getGrade(r.scores.intonasi)}</div></div>
+      <div class="score-item"><div class="score-num" style="color:${getScoreColor(overall)}">${overall}</div><div class="score-label">Keseluruhan</div><div class="score-grade" style="color:${getScoreColor(overall)}">${getGrade(overall)}</div></div>
+      <div class="score-item"><div class="score-num" style="color:${getScoreColor(r.scores.artikulasi)}">${r.scores.artikulasi}</div><div class="score-label">Artikulasi</div><div class="score-grade" style="color:${getScoreColor(r.scores.artikulasi)}">${getGrade(r.scores.artikulasi)}</div></div>
+    </div>
+    <div class="filler-section"><div class="sec-title">Filler Words Terdeteksi</div><div class="filler-chips">${fillerChips}</div><div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.6"><b style="color:var(--text)">Tingkat filler: ${fillerRate}%</b> dari ${words} kata · ${r.filler_verdict}</div></div>
+    <div class="filler-section"><div class="sec-title">Kecepatan & Ritme</div><div style="font-size:13px;color:var(--text);line-height:1.6">${r.kecepatan_verdict}</div></div>
+    ${dimsHTML}
+    <div class="filler-section"><div class="sec-title">Transkrip + Highlight Filler</div><div class="transcript-box" style="margin-bottom:6px">${highlightFillers(text.substring(0,500)+(text.length>500?'...':''))}</div><div style="font-size:11px;color:var(--muted)">Kata merah = filler words yang terdeteksi</div></div>
+    <div class="sw-grid">
+      <div class="sw-card sw-strength"><div class="sw-label">✦ Kekuatan Utama</div><div class="sw-text">${r.top_strength}</div></div>
+      <div class="sw-card sw-weakness"><div class="sw-label">! Fokus Perbaikan</div><div class="sw-text">${r.top_weakness}</div></div>
+    </div>
+    <div class="drill-box"><div class="drill-title">Drill Latihan</div>${r.drills.map(d=>`<div class="drill-item">${d}</div>`).join('')}</div>`;
+}
+
+function vokReset() {
+  vokTranscript = '';
+  showSection('vok','input');
+  document.getElementById('vok-btn').disabled = false;
+  document.getElementById('vok-live-transcript').style.display = 'none';
+  document.getElementById('vok-live-transcript').textContent = '';
+  document.getElementById('vok-rec-status').textContent = 'Klik untuk mulai merekam';
+  document.getElementById('vok-timer').style.display = 'none';
+  document.getElementById('vok-timer').textContent = '0:00';
+  vokSeconds = 0;
+}
+
+// ═══════════ SIMULASI Q&A ═══════════
+let simMode = 'record';
+let simQuestions = [];
+let simAnswers = [];
+let simCurrentQ = 0;
+let simCountdownTimer = null;
+let simMaxTime = 60;
+let simRecognition = null;
+let simIsRecording = false;
+let simTranscript = '';
+let simRecTimer = null;
+let simRecSeconds = 0;
+
+function setSimMode(m) {
+  simMode = m;
+  const isRec = m === 'record';
+  document.getElementById('sm-record').style.borderColor = isRec ? 'var(--sage)' : 'rgba(13,13,13,0.12)';
+  document.getElementById('sm-record').style.background = isRec ? 'rgba(74,103,65,0.05)' : 'white';
+  document.getElementById('sm-text').style.borderColor = !isRec ? 'var(--sage)' : 'rgba(13,13,13,0.12)';
+  document.getElementById('sm-text').style.background = !isRec ? 'rgba(74,103,65,0.05)' : 'white';
+}
+
+async function startSim() {
+  document.getElementById('sim-start-btn').disabled = true;
+  showSection('sim','loading');
+  document.getElementById('sim-loading-title').textContent = 'Menyiapkan pertanyaan...';
+
+  const topic = document.getElementById('sim-topic').value;
+  simMaxTime = parseInt(document.getElementById('sim-time').value);
+
+  const prompt = `Kamu pelatih public speaking Indonesia. Buat 3 pertanyaan simulasi Q&A yang menantang tentang topik: ${topic}.
+
+Pertanyaan harus:
+- Relevan dan realistis untuk presentasi / tanya jawab
+- Mengharuskan jawaban yang terstruktur
+- Bervariasi: 1 faktual, 1 opini, 1 situasional
+
+Balas HANYA JSON:
+{"questions":["[pertanyaan 1]","[pertanyaan 2]","[pertanyaan 3]"]}`;
+
+  try {
+    const result = await callClaude(prompt, 'Balas HANYA JSON valid.', 500);
+    simQuestions = result.questions;
+    simAnswers = [];
+    simCurrentQ = 0;
+    showSection('sim','session');
+    loadSimQuestion();
+  } catch(e) {
+    showSection('sim','setup');
+    alert('Gagal membuat pertanyaan: ' + e.message);
+  }
+  document.getElementById('sim-start-btn').disabled = false;
+}
+
+function loadSimQuestion() {
+  const q = simQuestions[simCurrentQ];
+  const total = simQuestions.length;
+  document.getElementById('sim-qnum').textContent = `Pertanyaan ${simCurrentQ+1} dari ${total}`;
+  document.getElementById('sim-question').textContent = q;
+  document.getElementById('sim-progress').style.width = ((simCurrentQ/total)*100) + '%';
+
+  // reset inputs
+  simTranscript = '';
+  if (document.getElementById('sim-text-input')) document.getElementById('sim-text-input').value = '';
+  if (document.getElementById('sim-live')) { document.getElementById('sim-live').style.display='none'; document.getElementById('sim-live').textContent=''; }
+
+  // show correct input area
+  document.getElementById('sim-record-area').classList.toggle('hidden', simMode !== 'record');
+  document.getElementById('sim-text-area').classList.toggle('hidden', simMode !== 'text');
+
+  // reset mic state
+  document.getElementById('sim-mic-btn').classList.remove('recording');
+  document.getElementById('sim-mic-btn').textContent = '🎙';
+  document.getElementById('sim-rec-status').textContent = 'Klik untuk rekam jawaban';
+  document.getElementById('sim-rec-timer').style.display = 'none';
+  document.getElementById('sim-wave').style.display = 'none';
+  simIsRecording = false;
+  simRecSeconds = 0;
+
+  // countdown
+  clearInterval(simCountdownTimer);
+  let timeLeft = simMaxTime;
+  document.getElementById('sim-countdown').textContent = timeLeft;
+  document.getElementById('sim-countdown').style.color = 'var(--ink)';
+
+  simCountdownTimer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('sim-countdown').textContent = timeLeft;
+    if (timeLeft <= 10) document.getElementById('sim-countdown').style.color = 'var(--red)';
+    if (timeLeft <= 0) { clearInterval(simCountdownTimer); simNextQ(); }
+  }, 1000);
+}
+
+function toggleSimRecord() {
+  if (!simIsRecording) startSimRecord();
+  else stopSimRecord();
+}
+
+function startSimRecord() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Gunakan Chrome untuk fitur rekam.\n\nAtau pilih mode "Ketik Jawaban".');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  simRecognition = new SR();
+  simRecognition.continuous = true;
+  simRecognition.interimResults = true;
+  simRecognition.lang = 'id-ID';
+
+  let finalT = '';
+  simRecognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalT += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    simTranscript = finalT + interim;
+    const el = document.getElementById('sim-live');
+    el.style.display = 'block';
+    el.textContent = simTranscript || '...';
+  };
+  simRecognition.onerror = () => {};
+  simRecognition.onend = () => { if (simIsRecording) simRecognition.start(); };
+  simRecognition.start();
+  simIsRecording = true;
+  simRecSeconds = 0;
+
+  document.getElementById('sim-mic-btn').classList.add('recording');
+  document.getElementById('sim-mic-btn').textContent = '⏹';
+  document.getElementById('sim-rec-status').textContent = 'Merekam... Jawab sekarang!';
+  document.getElementById('sim-rec-area').classList.add('recording');
+  document.getElementById('sim-rec-timer').style.display = 'block';
+  document.getElementById('sim-wave').style.display = 'flex';
+
+  simRecTimer = setInterval(() => {
+    simRecSeconds++;
+    const m = Math.floor(simRecSeconds/60), s = simRecSeconds%60;
+    document.getElementById('sim-rec-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+function stopSimRecord() {
+  if (simRecognition) { simRecognition.onend = null; simRecognition.stop(); }
+  simIsRecording = false;
+  clearInterval(simRecTimer);
+  document.getElementById('sim-mic-btn').classList.remove('recording');
+  document.getElementById('sim-mic-btn').textContent = '🎙';
+  document.getElementById('sim-rec-status').textContent = simTranscript ? '✓ Jawaban terekam!' : 'Rekaman selesai';
+  document.getElementById('sim-rec-area').classList.remove('recording');
+  document.getElementById('sim-wave').style.display = 'none';
+}
+
+async function simNextQ() {
+  clearInterval(simCountdownTimer);
+  if (simIsRecording) stopSimRecord();
+
+  const answer = simMode === 'record'
+    ? simTranscript.trim()
+    : document.getElementById('sim-text-input').value.trim();
+
+  simAnswers.push({ question: simQuestions[simCurrentQ], answer: answer || '(tidak ada jawaban)' });
+  simCurrentQ++;
+
+  if (simCurrentQ < simQuestions.length) {
+    loadSimQuestion();
+  } else {
+    await finishSim();
+  }
+}
+
+async function finishSim() {
+  showSection('sim','loading');
+  document.getElementById('sim-loading-title').textContent = 'Menganalisis semua jawaban...';
+
+  const qaSummary = simAnswers.map((qa,i) =>
+    `Pertanyaan ${i+1}: ${qa.question}\nJawaban: ${qa.answer}`
+  ).join('\n\n');
+
+  const prompt = `Kamu pelatih public speaking Indonesia. Evaluasi hasil sesi simulasi Q&A ini.
+
+${qaSummary}
+
+Balas HANYA JSON:
+{
+  "overall_score": [0-100],
+  "evaluations": [
+    {"question":"[pertanyaan singkat]","score":[0-100],"feedback":"[feedback spesifik 2-3 kalimat]","highlight":"[1 hal terbaik dari jawaban ini]"},
+    {"question":"...","score":...,"feedback":"...","highlight":"..."},
+    {"question":"...","score":...,"feedback":"...","highlight":"..."}
+  ],
+  "top_strength": "[kekuatan utama keseluruhan]",
+  "top_improvement": "[area perbaikan utama]",
+  "drills": ["[latihan 1 untuk improve jawaban Q&A]","[latihan 2]","[latihan 3]"]
+}`;
+
+  try {
+    const result = await callClaude(prompt, 'Balas HANYA JSON valid.', 1500);
+    renderSimResult(result);
+    showSection('sim','result');
+  } catch(e) {
+    showSection('sim','setup');
+    alert('Gagal menganalisis: ' + e.message);
+  }
+}
+
+function renderSimResult(r) {
+  const evalsHTML = r.evaluations.map((ev,i) => `
+    <div class="sim-feedback">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase">Pertanyaan ${i+1}</div>
+        <span style="font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:${getScoreColor(ev.score)}">${ev.score}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px">${simAnswers[i].question}</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:8px">${ev.feedback}</div>
+      <div style="font-size:12px;background:rgba(74,103,65,0.08);border:1px solid rgba(74,103,65,0.15);border-radius:8px;padding:8px 12px;color:var(--sage)">✦ ${ev.highlight}</div>
+    </div>`).join('');
+
+  document.getElementById('sim-result-content').innerHTML = `
+    <div style="background:var(--ink);border-radius:16px;padding:24px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(74,103,65,0.2),transparent 70%)"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;position:relative">Skor Keseluruhan</div>
+      <div style="font-family:'Fraunces',serif;font-size:64px;font-weight:900;color:${getScoreColor(r.overall_score)};line-height:1;position:relative">${r.overall_score}</div>
+      <div style="font-size:14px;font-weight:600;color:${getScoreColor(r.overall_score)};margin-top:8px;position:relative">${getGrade(r.overall_score)}</div>
+    </div>
+    ${evalsHTML}
+    <div class="sw-grid">
+      <div class="sw-card sw-strength"><div class="sw-label">✦ Kekuatan</div><div class="sw-text">${r.top_strength}</div></div>
+      <div class="sw-card sw-weakness"><div class="sw-label">! Perbaikan</div><div class="sw-text">${r.top_improvement}</div></div>
+    </div>
+    <div class="drill-box"><div class="drill-title">Drill untuk Q&A yang Lebih Baik</div>${r.drills.map(d=>`<div class="drill-item">${d}</div>`).join('')}</div>`;
+}
+
+function simReset() {
+  simQuestions = []; simAnswers = []; simCurrentQ = 0;
+  clearInterval(simCountdownTimer);
+  if (simIsRecording) stopSimRecord();
+  showSection('sim','setup');
+  document.getElementById('sim-start-btn').disabled = false;
+}
+</script>
+</body>
+</html>
